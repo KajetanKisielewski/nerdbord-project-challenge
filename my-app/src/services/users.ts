@@ -14,6 +14,9 @@ async function executeSupabaseQuery(query: any) {
 export async function addUser(email: string, name: string) {
     const supabase = await createSupabaseClient();
 
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log('Current session:', session);
+
     const query = supabase.from('users').insert([{email, name}]).select('*');
     return await executeSupabaseQuery(query);
 }
