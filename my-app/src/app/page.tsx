@@ -1,95 +1,124 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
+import React, { useState, useEffect } from 'react';
+
+import { addUser, getUsers, deleteUser, updateUser } from "@/services/users";
+
+export default function UserManagementForm() {
+    const [emailAdd, setEmailAdd] = useState('');
+    const [nameAdd, setNameAdd] = useState('');
+
+    const [id, setId] = useState('');
+    const [emailUpdate, setEmailUpdate] = useState('');
+    const [nameUpdate, setNameUpdate] = useState('');
+
+    const [users, setUsers] = useState([]);
+
+    const handleAddUser = async (e) => {
+        e.preventDefault();
+        const result = await addUser(emailAdd, nameAdd);
+        if (result) {
+            alert('User added successfully');
+            fetchUsers();
+        } else {
+            alert('Failed to add user');
+        }
+    };
+
+    const handleDeleteUser = async (e) => {
+        e.preventDefault();
+        const result = await deleteUser(Number(id));
+        if (result) {
+            alert('User deleted successfully');
+            fetchUsers();
+        } else {
+            alert('Failed to delete user');
+        }
+    };
+
+    const handleUpdateUser = async (e) => {
+        e.preventDefault();
+        const result = await updateUser(Number(id), emailUpdate, nameUpdate);
+        if (result) {
+            alert('User updated successfully');
+            fetchUsers();
+        } else {
+            alert('Failed to update user');
+        }
+    };
+
+    const fetchUsers = async () => {
+        const result = await getUsers();
+        if (result) {
+            setUsers(result);
+        } else {
+            alert('Failed to fetch users');
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    return (
         <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            <form onSubmit={handleAddUser}>
+                <h2>Add User</h2>
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={emailAdd}
+                    onChange={(e) => setEmailAdd(e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Name"
+                    value={nameAdd}
+                    onChange={(e) => setNameAdd(e.target.value)}
+                />
+                <button type="submit">Add User</button>
+            </form>
+
+            <form onSubmit={handleDeleteUser}>
+                <h2>Delete User</h2>
+                <input
+                    type="text"
+                    placeholder="User ID"
+                    value={id}
+                    onChange={(e) => setId(e.target.value)}
+                />
+                <button type="submit">Delete User</button>
+            </form>
+
+            <form onSubmit={handleUpdateUser}>
+                <h2>Update User</h2>
+                <input
+                    type="text"
+                    placeholder="User ID"
+                    value={id}
+                    onChange={(e) => setId(e.target.value)}
+                />
+                <input
+                    type="email"
+                    placeholder="New Email"
+                    value={emailUpdate}
+                    onChange={(e) => setEmailUpdate(e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="New Name"
+                    value={nameUpdate}
+                    onChange={(e) => setNameUpdate(e.target.value)}
+                />
+                <button type="submit">Update User</button>
+            </form>
+
+            <h2>Users List</h2>
+            <ul>
+                {users.map(user => (
+                    <li key={user.id}>{user.email} - {user.name} (ID: {user.id})</li>
+                ))}
+            </ul>
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+    );
 }
